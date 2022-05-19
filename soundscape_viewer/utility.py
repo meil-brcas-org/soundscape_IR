@@ -462,7 +462,7 @@ class matrix_operation:
         return output
 
 class spectrogram_detection:
-  def __init__(self, input, f, threshold, smooth=0, minimum_interval=0, minimum_duration = None, maximum_duration=None, pad_size=0, filename='Detection.txt', folder_id=[], path='./', status_print=True, show_result = True):
+  def __init__(self, input, f, threshold, smooth=0, minimum_interval=0, minimum_duration=None, maximum_duration=None, pad_size=0, filename='Detection.txt', folder_id=[], path='./', status_print=True, show_result=True):
       from scipy.ndimage import gaussian_filter
       
       time_vec=input[:,0]

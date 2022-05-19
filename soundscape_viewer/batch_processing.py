@@ -17,7 +17,7 @@ class batch_processing:
     file_list = os.listdir(path)
     self.link = path
     self.cloud = 0   
-    self.audioname=np.array([], dtype=np.object)
+    self.audioname=np.array([], dtype=object)
     for filename in file_list:
         if filename.endswith(file_extension):
             self.audioname = np.append(self.audioname, filename)
@@ -36,8 +36,8 @@ class batch_processing:
     Gdrive=gdrive_handle(folder_id)
     Gdrive.list_query(file_extension=file_extension)
     self.cloud=2
-    link=np.array([], dtype=np.object)
-    audioname=np.array([], dtype=np.object)
+    link=np.array([], dtype=object)
+    audioname=np.array([], dtype=object)
     #self.Gdrive=Gdrive
     for file in Gdrive.file_list:
       link=np.append(link, file['alternateLink'])
@@ -45,9 +45,9 @@ class batch_processing:
     print('Identified ', len(audioname), 'files')
     return Gdrive, link, audioname
 
-  def params_spectrogram(self, offset_read=0, fft_size=512, environment='wat', time_resolution=None, window_overlap=0, f_range=[], prewhiten_percent=0, padding=0, folder_combine=False, mel_comp=0, sensitivity=0):
+  def params_spectrogram(self, offset_read=0, FFT_size=512, environment='wat', time_resolution=None, window_overlap=0, f_range=[], prewhiten_percent=0, padding=0, folder_combine=False, mel_comp=0, sensitivity=0):
     self.offset_read = offset_read
-    self.fft_size = fft_size 
+    self.FFT_size = FFT_size 
     self.time_resolution = time_resolution
     self.window_overlap = window_overlap
     self.f_range = f_range
@@ -69,14 +69,17 @@ class batch_processing:
     self.run_adaptive_prewhiten=True
     self.continuous_adaptive=continuous_adaptive
 
-  def params_separation(self, model, iter=50, adaptive_alpha=0, additional_basis=0):
-    self.model = model
+  def params_separation(self, model_path = '.', iter=50, adaptive_alpha=0, additional_basis=0, save_adaptive = False, save_additional = False):
+    self.model_path = model_path
     self.iter = iter
     self.adaptive_alpha = adaptive_alpha
     self.additional_basis = additional_basis
     self.run_separation = True
-  
-  def params_spectrogram_detection(self, source=1, threshold=20, smooth=3, frequency_cut=20, frequency_count=0, minimum_interval=0, padding=0, folder_id=[],path='./'):
+    self.save_adaptive = save_adaptive
+    self.save_additional = save_additional
+
+  def params_spectrogram_detection(self, source=1, threshold=20, smooth=0, minimum_interval=0, minimum_duration = None, maximum_duration=None, pad_size=0, folder_id=[], path='./'):
+    self.run_detection=True
     if isinstance(source, int):
       self.source = [source]
       if source==0:
@@ -89,26 +92,33 @@ class batch_processing:
     else:
       self.threshold = threshold
     
-    if isinstance(frequency_cut, int) or isinstance(frequency_cut, float):
-      self.frequency_cut = [frequency_cut]*len(self.source)
-    else:
-      self.frequency_cut = frequency_cut
-
-    if isinstance(frequency_count, int) or isinstance(frequency_count, float):
-      self.frequency_count = [frequency_count]*len(self.source)
-    else:
-      self.frequency_count = frequency_count
-
     if isinstance(minimum_interval, int) or isinstance(minimum_interval, float):
       self.minimum_interval = [minimum_interval]*len(self.source)
     else:
       self.minimum_interval = minimum_interval
     
-    self.smooth = smooth
-    self.padding = padding
+    if isinstance(minimum_duration, int) or isinstance(minimum_duration, float) or isinstance(minimum_duration, type(None)):
+      self.minimum_duration = [minimum_duration]*len(self.source)
+    else:
+      self.minimum_duration = minimum_duration
+
+    if isinstance(maximum_duration, int) or isinstance(maximum_duration, float) or isinstance(maximum_duration, type(None)):
+      self.maximum_duration = [maximum_duration]*len(self.source)
+    else:
+      self.maximum_duration = maximum_duration
+    
+    if isinstance(smooth, int) or isinstance(smooth, float):
+      self.smooth = [smooth]*len(self.source)
+    else:
+      self.smooth = smooth
+
+    if isinstance(pad_size, int) or isinstance(pad_size, float):
+      self.padding = [pad_size]*len(self.source)
+    else:
+      self.padding = pad_size
+
     self.folder_id = folder_id
     self.path = path
-    self.run_detection=True
   
   def params_lts_maker(self, source=1, time_resolution=[], dateformat='yyyymmdd_HHMMSS', initial=[], year_initial=2000, filename='Separation_LTS.mat', folder_id=[]):
     self.run_lts=True
@@ -131,11 +141,12 @@ class batch_processing:
       self.run_pulse_analysis=True
   
   def run(self, start=0, num_file=None):
-    from soundscape_IR.soundscape_viewer.lts_maker import lts_maker
-    from soundscape_IR.soundscape_viewer.utility import audio_visualization
-    from soundscape_IR.soundscape_viewer.utility import spectrogram_detection
-    from soundscape_IR.soundscape_viewer.utility import pulse_interval
-    from soundscape_IR.soundscape_viewer.utility import matrix_operation
+    from soundscape_IR.soundscape_viewer import lts_maker
+    from soundscape_IR.soundscape_viewer import audio_visualization
+    from soundscape_IR.soundscape_viewer import spectrogram_detection
+    from soundscape_IR.soundscape_viewer import pulse_interval
+    from soundscape_IR.soundscape_viewer import matrix_operation
+    from soundscape_IR.soundscape_viewer import source_separation
 
     import copy
     import os
@@ -143,7 +154,9 @@ class batch_processing:
       import urllib.request
 
     if self.run_separation:
-      model_backup = copy.deepcopy(self.model)
+      model = source_separation()
+      model.load_model(filename = self.model_path)
+      model_backup = copy.deepcopy(model)
 
     self.start = start
     if num_file:
@@ -173,7 +186,7 @@ class batch_processing:
 
       
       if self.Raven_selections:
-        audio = audio_visualization(self.audioname[file], path, FFT_size = self.fft_size, time_resolution=self.time_resolution, window_overlap=self.window_overlap, f_range = self.f_range, sensitivity=self.sensitivity, 
+        audio = audio_visualization(self.audioname[file], path, FFT_size = self.FFT_size, time_resolution=self.time_resolution, window_overlap=self.window_overlap, f_range = self.f_range, sensitivity=self.sensitivity, 
                                     environment=self.environment, plot_type=None, prewhiten_percent=self.prewhiten_percent, annotation = temp2['title'], padding = self.annotation_padding, mel_comp=self.mel_comp)
         if self.folder_combine:
           if file==0:
@@ -188,7 +201,7 @@ class batch_processing:
           self.f=np.array(audio.f)
           self.time_notation=time_notation
       else:
-        audio = audio_visualization(self.audioname[file], path, offset_read = self.offset_read, FFT_size = self.fft_size, time_resolution=self.time_resolution, window_overlap=self.window_overlap, f_range = self.f_range, sensitivity=self.sensitivity,
+        audio = audio_visualization(self.audioname[file], path, offset_read = self.offset_read, FFT_size = self.FFT_size, time_resolution=self.time_resolution, window_overlap=self.window_overlap, f_range = self.f_range, sensitivity=self.sensitivity,
                                   environment=self.environment, plot_type=None, prewhiten_percent=self.prewhiten_percent, mel_comp=self.mel_comp)
         if self.run_adaptive_prewhiten:
           if file==self.start:
@@ -215,13 +228,11 @@ class batch_processing:
         if self.run_detection:
           for n in range(0, len(self.source)):
             filename=self.audioname[file][:-4]+'_S'+str(self.source[n])+'.txt'
-            spectrogram_detection(model.separation[self.source[n]-1], model.f, threshold=self.threshold[n], smooth=self.smooth, frequency_cut=self.frequency_cut[n], frequency_count=self.frequency_count[n], minimum_interval=self.minimum_interval[n], pad_size=self.padding, filename=filename, folder_id = self.folder_id, status_print=False,path=self.path)
-            
+            spectrogram_detection(model.separation[self.source[n]-1], model.f, threshold=self.threshold[n], smooth=self.smooth[n], minimum_interval=self.minimum_interval[n], minimum_duration = self.minimum_duration[n], maximum_duration=self.maximum_duration[n], pad_size=self.padding[n], filename=filename, folder_id = self.folder_id, path=self.path, status_print=False, show_result = False)
       if self.run_detection:
         if not self.source:
           filename=self.audioname[file][:-4]+'.txt'
-          spectrogram_detection(audio.data, audio.f, threshold=self.threshold[n], smooth=self.smooth, frequency_cut=self.frequency_cut[n], frequency_count=self.frequency_count[n], minimum_interval=self.minimum_interval[n], pad_size=self.padding, filename=filename, folder_id = self.folder_id, status_print=False,path=self.path)
-
+          spectrogram_detection(audio.data, audio.f, threshold=self.threshold[n], smooth=self.smooth[n], minimum_interval=self.minimum_interval[n], minimum_duration = self.minimum_duration[n], maximum_duration=self.maximum_duration[n], pad_size=self.padding[n], filename=filename, folder_id = self.folder_id, path=self.path, status_print=False, show_result = False)
       if self.run_pulse_analysis:
         if self.run_separation:
           pulse_analysis_result=pulse_interval(model.separation[self.source-1], energy_percentile=self.energy_percentile, interval_range=self.interval_range, plot_type=None)

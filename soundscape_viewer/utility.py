@@ -98,6 +98,15 @@ class save_parameters:
         self.sampling_freq=sampling_freq 
         self.channel=channel
 
+    def save_features(self, W, W_cluster, adaptive_alpha, save_idx):
+        if(save_idx[0]):
+          source_idx = np.where(np.array(adaptive_alpha)>0)
+          idx =  np.in1d(W_cluster, source_idx)
+          self.save_adaptive = W[:,idx]
+        if(save_idx[1]):
+          idx = W_cluster == np.max(W_cluster)
+          self.save_additional = W[:,idx]
+
 class audio_visualization:
     def __init__(self, filename=None,  path=None, offset_read=0, duration_read=None, FFT_size=512, time_resolution=None, window_overlap=0.5, f_range=[], sensitivity=0, environment='wat', plot_type='Spectrogram', vmin=None, vmax=None, prewhiten_percent=0, mel_comp=0, annotation=None, padding=0):
         if not path:

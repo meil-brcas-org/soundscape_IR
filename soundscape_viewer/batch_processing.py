@@ -1,6 +1,6 @@
 import numpy as np
 
-class batch_processing:  
+class batch_processing:
   def __init__(self, folder = [], filename=[], folder_id = [], file_extension = '.wav', import_Raven_selections=False, filename_add=[]):
     if folder:
       self.collect_folder(folder, file_extension)
@@ -69,14 +69,14 @@ class batch_processing:
     self.run_adaptive_prewhiten=True
     self.continuous_adaptive=continuous_adaptive
 
-  def params_separation(self, model_path = '.', iter=50, adaptive_alpha=0, additional_basis=0, save_adaptive = False, save_additional = False):
+  def params_separation(self, model_path = '.', iter=50, adaptive_alpha=0, additional_basis=0, save_adaptive = False, save_additional = False, path = './'):
     self.model_path = model_path
     self.iter = iter
     self.adaptive_alpha = adaptive_alpha
     self.additional_basis = additional_basis
     self.run_separation = True
-    self.save_adaptive = save_adaptive
-    self.save_additional = save_additional
+    self.save_idx = [save_adaptive, save_additional]
+    self.save_features_path = path
 
   def params_spectrogram_detection(self, source=1, threshold=20, smooth=0, minimum_interval=0, minimum_duration = None, maximum_duration=None, pad_size=0, folder_id=[], path='./'):
     self.run_detection=True
@@ -147,7 +147,9 @@ class batch_processing:
     from soundscape_IR.soundscape_viewer import pulse_interval
     from soundscape_IR.soundscape_viewer import matrix_operation
     from soundscape_IR.soundscape_viewer import source_separation
+    from soundscape_IR.soundscape_viewer import save_parameters
 
+    from scipy.io import savemat
     import copy
     import os
     if self.cloud==1:
@@ -215,6 +217,12 @@ class batch_processing:
       if self.run_separation:
         model = copy.deepcopy(model_backup)
         model.prediction(audio.data, audio.f, iter = self.iter, adaptive_alpha = self.adaptive_alpha, additional_basis = self.additional_basis)
+        if(np.sum(self.save_idx) > 0):
+          filename=self.audioname[file][:-4]+'.mat'
+          temp=save_parameters()
+          temp.save_features(model.W, model.W_cluster, self.adaptive_alpha, self.save_idx)
+          savemat(self.save_features_path+'/'+filename, {'save_features':temp})
+        
         if self.run_lts:
           if file==self.start:
             lts = lts_maker(time_resolution=self.lts_time_resolution)

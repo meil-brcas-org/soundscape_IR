@@ -499,14 +499,14 @@ class spectrogram_detection:
           ending=ending[np.append(remove_list, len(ending)-1)]
             
       if maximum_duration:
-        keep_list=np.where((ending-begin)<=maximum_duration)[0]
-        if len(remove_list)>0:
+        keep_list=np.where((ending-begin)<maximum_duration)[0]
+        if len(keep_list)>0:
           begin=begin[keep_list]
           ending=ending[keep_list]
 
       if minimum_duration:
-        keep_list=np.where((ending-begin)>=minimum_duration)[0]
-        if len(remove_list)>0:
+        keep_list=np.where((ending-begin)>minimum_duration)[0]
+        if len(keep_list)>0:
           begin=begin[keep_list]
           ending=ending[keep_list]
       

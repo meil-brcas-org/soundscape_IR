@@ -326,9 +326,11 @@ class source_separation:
       W_list=np.arange(self.W.shape[1])
 
     # Only display part of the result
-    H_list=np.arange(len(self.time_vec))
-    if time_range:
-      H_list=np.where((self.time_vec>=time_range[0])*(self.time_vec<time_range[1])==1)[0]
+    if not plot_type=='W':
+      H_list=np.arange(len(self.time_vec))
+      if time_range:
+        H_list=np.where((self.time_vec>=time_range[0])*(self.time_vec<time_range[1])==1)[0]
+      x_lim=[self.time_vec[H_list[0]][0], self.time_vec[H_list[-1]][0]]
 
     # Prepare W
     if self.W.shape[0]>len(self.f):
@@ -338,7 +340,6 @@ class source_separation:
       W=np.array(self.W[:,W_list])
         
     # Plot
-    x_lim=[self.time_vec[H_list[0]][0], self.time_vec[H_list[-1]][0]]
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     if plot_type=='W':
       im = ax.imshow(W[:,1:], origin='lower',  aspect='auto', cmap=cm.jet,
@@ -532,6 +533,7 @@ class source_separation:
   
   def load_model(self, filename):
     model = loadmat(filename)
+    self.f=model['save_nmf']['f'].item()[0]
     self.W=model['save_nmf']['W'].item()
     self.W_cluster=model['save_nmf']['W_cluster'].item()[0]
     self.source_num=model['save_nmf']['k'].item()[0][0]

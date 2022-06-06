@@ -133,8 +133,8 @@ class pcnmf:
 
   def pcnmf_output(self, data, time_vec, baseline=0):
     self.original_level = 10*np.log10((10**((data+baseline).T[:,1:]/10)).sum(axis=1))
-    separation=np.zeros(self.source_num, dtype=np.object)
-    relative_level=np.zeros(self.source_num, dtype=np.object)
+    separation=np.zeros(self.source_num, dtype=object)
+    relative_level=np.zeros(self.source_num, dtype=object)
     matrix_shape=data.shape
     source0 = np.dot(self.W, self.H)
     for run in range(self.source_num):
@@ -303,8 +303,8 @@ class source_separation:
 
   def nmf_output(self, data, time_vec, baseline=0):
     self.original_level = 10*np.log10((10**(data.T[:,1:]/10)).sum(axis=1))
-    separation=np.zeros(self.source_num, dtype=np.object)
-    relative_level=np.zeros(self.source_num, dtype=np.object)
+    separation=np.zeros(self.source_num, dtype=object)
+    relative_level=np.zeros(self.source_num, dtype=object)
     matrix_shape=data.shape
 
     # Use a ratio mask (e.g., S1 = V*((W1*H1)/(W*H))) to separate different sources

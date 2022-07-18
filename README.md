@@ -15,7 +15,7 @@ To install **soundscape_IR**, clone the repository in your Python environment.
 # Clone soundscape_IR from GitHub @schonkopf
 git clone https://github.com/schonkopf/soundscape_IR.git
 ```
-Then, install the [requirements.txt](https://github.com/schonkopf/soundscape_IR/blob/master/requirements.txt) in the package folder for installing required packages.
+Then, install the [requirements.txt](https://github.com/meil-brcas-org/soundscape_IR/blob/master/requirements.txt) in the package folder for installing required packages.
 ```bash
 # Install required packages
 cd soundscape_IR

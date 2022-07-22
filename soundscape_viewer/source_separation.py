@@ -92,13 +92,11 @@ class pcnmf:
     input_data=input_data[:,1:].T
     baseline=input_data.min()
     input_data=input_data-baseline
-    print('Running periodicity-coded NMF')
     
     # Modify the input data based the feature width
     data=self.matrix_conv(input_data)
 
     # 1st NMF for feature learning
-    print('Feature learning...')
     self.W, self.H, n_iter = NMF(data, n_components=self.basis_num, init=self.initial, 
                             update_H=True, solver=self.solver, beta_loss=self.beta_loss,
                             alpha=self.alpha, l1_ratio=self.sparseness, regularization='transformation') 
@@ -110,7 +108,6 @@ class pcnmf:
     P2=P2-P2.min()
 
     # 2nd NMF for feature clustering
-    print('Periodicity learning...')
     W_p, H_p, n_iter = NMF(np.transpose(P2), n_components=source_num, init=self.initial, 
                            update_H=True, solver=self.solver, beta_loss=self.beta_loss, 
                            alpha=self.alpha, l1_ratio=0.5, regularization='components') 
@@ -121,7 +118,6 @@ class pcnmf:
     # Reconstruct individual sources
     self.pcnmf_output(input_data, self.time_vec, baseline)
     self.time_vec=self.time_vec[:,0]
-    print('Done')
     return self.W, self.H, self.W_cluster
     
   def matrix_conv(self, input_data):
@@ -228,25 +224,24 @@ class pcnmf:
     nmf_model=save_parameters()
     nmf_model.pcnmf(self.f, self.W, self.W_cluster, self.source_num, self.feature_length, self.basis_num, self.sparseness)
     savemat(filename, {'save_nmf':nmf_model})
-    print('Successifully save to '+filename)
     
     # save the result in Gdrive as a mat file
     if folder_id:
-      Gdrive=gdrive_handle(folder_id)
-      Gdrive.upload(filename)
+      Gdrive=gdrive_handle(folder_id, status_print=False)
+      Gdrive.upload(filename, status_print=False)
       
   def model_check(self, model):
-    print('Model parameters check')
+    print('Model parameters:')
     intf=model['save_nmf']['f'].item()[0][1]-model['save_nmf']['f'].item()[0][0]
-    print('Minima and maxima frequancy bin:', min(model['save_nmf']['f'].item()[0]), 'Hz and', max(model['save_nmf']['f'].item()[0]), 'Hz')
-    print('Frequancy resolution:' ,intf, 'Hz')
+    print('Minimum and maximum frequency:', min(model['save_nmf']['f'].item()[0]), 'Hz and', max(model['save_nmf']['f'].item()[0]), 'Hz')
+    print('Frequency resolution:' ,intf, 'Hz')
     print('Feature length:' ,self.feature_length)
-    print('Number of basis:' ,self.basis_num)
-    print('Number of source:' ,self.source_num)
+    print('Number of basis functions:' ,self.basis_num)
+    print('Number of sources:' ,self.source_num)
     if np.any(np.array(model['save_nmf'][0].dtype.names)=='sparseness'):
       print('Sparseness:', self.sparseness)
 
-  def load_model(self, filename):
+  def load_model(self, filename, model_check=True):
     model = loadmat(filename)
     self.W=model['save_nmf']['W'].item()
     self.W_cluster=model['save_nmf']['W_cluster'].item()[0]
@@ -255,7 +250,8 @@ class pcnmf:
     self.basis_num=model['save_nmf']['basis_num'].item()[0][0]
     if np.any(np.array(model['save_nmf'][0].dtype.names)=='sparseness'):
       self.sparseness=model['save_nmf']['sparseness'].item()[0][0]
-    self.model_check(model)
+    if model_check:
+      self.model_check(model)
   
   def supervised_separation(self, input_data, f, iter=50):
     self.f=f    
@@ -265,7 +261,6 @@ class pcnmf:
     input_data=input_data-baseline
           
     # Modify the input data based on the feature length
-    print('Running supervised NMF')
     data=self.matrix_conv(input_data)
 
     # supervised NMF
@@ -275,14 +270,12 @@ class pcnmf:
     Ht=H.T
     Ht = check_array(H.T, order='C')
     X = check_array(data, accept_sparse='csr')
-    print('Learning temporal activitations...')
     for run in range(iter):
       W=self.W
       violation += basis_update(X.T, W=Ht, Ht=W, l1_reg=0, l2_reg=0, shuffle=False, random_state=None)
     self.H=Ht.T
     self.pcnmf_output(input_data, self.time_vec, baseline)
     self.time_vec=self.time_vec[:,0]
-    print('Done')
     
 class source_separation:
   def __init__(self, feature_length=1, basis_num=60):
@@ -404,11 +397,9 @@ class source_separation:
         input_data=pcnmf(feature_length=self.feature_length).matrix_conv(input_data)
       
       # NMF-based feature learning
-      print('Feature learning...')
       self.W, self.H, _ = NMF(input_data, n_components=self.basis_num, beta_loss=beta, alpha=alpha, l1_ratio=l1_ratio)
       self.source_num = 1
       self.W_cluster=np.zeros(self.basis_num)
-      print('Done')
       if show_result:
         # Plot the spectral features(W) and temporal activations(H) learned by using the NMF
         if self.W.shape[0]>len(f):
@@ -513,12 +504,11 @@ class source_separation:
     nmf_model=save_parameters()
     nmf_model.supervised_nmf(self.f, self.W, self.W_cluster, self.source_num, self.feature_length, self.basis_num)
     savemat(filename, {'save_nmf':nmf_model})
-    print('Successifully save to '+filename)
     
     # save the result in Gdrive as a mat file
     if folder_id:
-      Gdrive=gdrive_handle(folder_id)
-      Gdrive.upload(filename)
+      Gdrive=gdrive_handle(folder_id, status_print=False)
+      Gdrive.upload(filename, status_print=False)
       
   def model_check(self, model):
     print('Model parameters check')
@@ -531,7 +521,7 @@ class source_separation:
     if np.any(np.array(model['save_nmf'][0].dtype.names)=='sparseness'):
       print('Sparseness:', self.sparseness)
   
-  def load_model(self, filename):
+  def load_model(self, filename, model_check=True):
     model = loadmat(filename)
     self.f=model['save_nmf']['f'].item()[0]
     self.W=model['save_nmf']['W'].item()
@@ -541,7 +531,8 @@ class source_separation:
     self.basis_num=model['save_nmf']['basis_num'].item()[0][0]
     if np.any(np.array(model['save_nmf'][0].dtype.names)=='sparseness'):
       self.sparseness=model['save_nmf']['sparseness'].item()[0][0]
-    self.model_check(model)
+    if model_check:
+      self.model_check(model)
   
   def output_selection(self, source=1, begin_date=[], end_date=[], f_range=[]):
     source=source-1

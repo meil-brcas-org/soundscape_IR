@@ -5,6 +5,8 @@
 **soundscape_IR** is a python-based toolbox of soundscape information retrieval, aiming to assist in the analysis of soundscape recordings. 
 The toolbox is primarily desgined for: (1) visualization of soundscape dynamics (based on the MATLAB package [Soundscape Viewer](https://github.com/schonkopf/soundscape-viewer)) and (2) audio source separation.
 
+[![DOI](https://zenodo.org/badge/485700854.svg)](https://zenodo.org/badge/latestdoi/485700854)
+
 ## Installation
 Dependencies:
 - Python >= 3.6
@@ -15,7 +17,7 @@ To install **soundscape_IR**, clone the repository in your Python environment.
 # Clone soundscape_IR from GitHub @schonkopf
 git clone https://github.com/schonkopf/soundscape_IR.git
 ```
-Then, install the [requirements.txt](https://github.com/schonkopf/soundscape_IR/blob/master/requirements.txt) in the package folder for installing required packages.
+Then, install the [requirements.txt](https://github.com/meil-brcas-org/soundscape_IR/blob/master/requirements.txt) in the package folder for installing required packages.
 ```bash
 # Install required packages
 cd soundscape_IR

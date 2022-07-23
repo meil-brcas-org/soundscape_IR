@@ -156,7 +156,7 @@ class batch_processing:
     if self.cloud==1:
       import urllib.request
 
-    self.start = start
+    self.start = start-1
     if not num_file:
       num_file=len(self.audioname)
     run_list=range(self.start, self.start+num_file)

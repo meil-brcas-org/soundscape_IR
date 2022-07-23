@@ -26,6 +26,7 @@ class batch_processing:
     for filename in file_list:
         if filename.endswith(file_extension):
             self.audioname = np.append(self.audioname, filename)
+    self.audioname = np.sort(self.audioname)
     print('Identified ', len(self.audioname), 'files')
     
   def collect_Gdrive(self, folder_id, file_extension='.wav'):
@@ -38,6 +39,7 @@ class batch_processing:
     for file in Gdrive.file_list:
       link=np.append(link, file['alternateLink'])
       audioname=np.append(audioname, file['title'])
+    audioname = np.sort(audioname)
     print('Identified ', len(audioname), 'files')
     return Gdrive, link, audioname
 

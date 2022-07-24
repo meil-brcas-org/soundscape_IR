@@ -39,7 +39,9 @@ class batch_processing:
     for file in Gdrive.file_list:
       link=np.append(link, file['alternateLink'])
       audioname=np.append(audioname, file['title'])
-    audioname = np.sort(audioname)
+    idx = np.argsort(audioname)
+    audioname = audioname[idx]
+    Gdrive.file_list = np.array(Gdrive.file_list)[idx]
     print('Identified ', len(audioname), 'files')
     return Gdrive, link, audioname
 

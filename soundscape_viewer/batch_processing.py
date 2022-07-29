@@ -146,7 +146,7 @@ class batch_processing:
     self.dateformat = dateformat
     self.year_initial = year_initial
 
-  def run(self, start=0, num_file=None):
+  def run(self, start=1, num_file=None):
     from soundscape_IR.soundscape_viewer import lts_maker
     from soundscape_IR.soundscape_viewer import audio_visualization
     from soundscape_IR.soundscape_viewer import spectrogram_detection

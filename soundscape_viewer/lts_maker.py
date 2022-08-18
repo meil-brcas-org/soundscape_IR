@@ -134,7 +134,7 @@ class lts_maker:
     self.link = path
     self.cloud = 0   
     n = 0
-    self.audioname=np.array([], dtype=np.object)
+    self.audioname=np.array([], dtype=object)
     for filename in file_list:
         if filename.endswith(file_extension):
             self.audioname = np.append(self.audioname, filename)
@@ -159,8 +159,8 @@ class lts_maker:
     Gdrive=gdrive_handle(folder_id)
     Gdrive.list_query(file_extension=file_extension, subfolder=subfolder)
     self.cloud=2
-    self.link=np.array([], dtype=np.object)
-    self.audioname=np.array([], dtype=np.object)
+    self.link=np.array([], dtype=object)
+    self.audioname=np.array([], dtype=object)
     self.Gdrive=Gdrive
     n=0
     for file in Gdrive.file_list:

@@ -1,4 +1,5 @@
 import numpy as np
+from natsort import natsorted, index_natsorted
 
 class batch_processing:
   def __init__(self, folder=[], folder_id=[], file_extension='.wav', annotation_extension=None):
@@ -26,6 +27,7 @@ class batch_processing:
     for filename in file_list:
         if filename.endswith(file_extension):
             self.audioname = np.append(self.audioname, filename)
+    self.audioname = natsorted(self.audioname)
     print('Identified ', len(self.audioname), 'files')
     
   def collect_Gdrive(self, folder_id, file_extension='.wav'):
@@ -38,6 +40,9 @@ class batch_processing:
     for file in Gdrive.file_list:
       link=np.append(link, file['alternateLink'])
       audioname=np.append(audioname, file['title'])
+    idx = index_natsorted(audioname)
+    audioname = audioname[idx]
+    Gdrive.file_list = np.array(Gdrive.file_list)[idx]
     print('Identified ', len(audioname), 'files')
     return Gdrive, link, audioname
 
@@ -141,7 +146,7 @@ class batch_processing:
     self.dateformat = dateformat
     self.year_initial = year_initial
 
-  def run(self, start=0, num_file=None):
+  def run(self, start=1, num_file=None):
     from soundscape_IR.soundscape_viewer import lts_maker
     from soundscape_IR.soundscape_viewer import audio_visualization
     from soundscape_IR.soundscape_viewer import spectrogram_detection
@@ -156,7 +161,7 @@ class batch_processing:
     if self.cloud==1:
       import urllib.request
 
-    self.start = start
+    self.start = start-1
     if not num_file:
       num_file=len(self.audioname)
     run_list=range(self.start, self.start+num_file)

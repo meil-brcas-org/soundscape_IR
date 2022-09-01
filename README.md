@@ -5,12 +5,21 @@
 **soundscape_IR** is a python-based toolbox of soundscape information retrieval, aiming to assist in the analysis of soundscape recordings. 
 The toolbox is primarily desgined for: (1) visualization of soundscape dynamics (based on the MATLAB package [Soundscape Viewer](https://github.com/schonkopf/soundscape-viewer)) and (2) audio source separation.
 
+See https://schonkopf.github.io/docs/index.html for technical documentation and more examples.
+
 [![DOI](https://zenodo.org/badge/485700854.svg)](https://zenodo.org/badge/latestdoi/485700854)
 
 ## Installation
 Dependencies:
 - Python >= 3.7
+- numpy==1.21.5
+- pandas==1.3.5
+- audioread==2.1.9
+- librosa==0.8.0
 - scikit-learn == 0.23
+- scipy==1.4.1
+- matplotlib==3.2.2
+- plotly==5.5.0
 
 To install **soundscape_IR**, clone the repository in your Python environment.
 ```bash
@@ -51,7 +60,7 @@ sound_train = audio_visualization(filename='case1_train.wav', path='./data/wav/'
 <details open>
 <summary>Model training</summary>
     
-After preparing the training spectrgram, we can train a model with ```source_separation```. NMF learns a set of basis functions to reconstruct the training spectrogram. In **soundscape_IR**, we can apply PC-NMF to separate the basis functions into two groups according to their source-specific periodicity. In this example, one group of basis funcitons is associated with deer call (mainly < 4 kHz) and another group is associated with noise (mainly > 3.5 kHz). Save the model for further applications.
+After preparing the training spectrogram, we can train a model with ```source_separation```. NMF learns a set of basis functions to reconstruct the training spectrogram. In **soundscape_IR**, we can apply PC-NMF to separate the basis functions into two groups according to their source-specific periodicity. In this example, one group of basis funcitons is associated with deer call (mainly < 4 kHz) and another group is associated with noise (mainly > 3.5 kHz). Save the model for further applications.
 
 ```python
 from soundscape_IR.soundscape_viewer import source_separation
@@ -124,13 +133,13 @@ sp=spectrogram_detection(model.separation[source_num-1], model.f, threshold=5.5,
     
 - [Demo of audio source separation - Detecting deer calls from tropical forest soundscapes](./docs/tutorials/Demo_of_soundscape_IR_Case_study_I.ipynb)
 - [Demo of audio source separation - Learning the diversity of underwater sounds from subtropical estuary soundscapes](./docs/tutorials/Demo_of_soundscape_IR_Case_study_II.ipynb)
+- [Demo of batch processing - Automatically analyzing a large number of soundscape recordings](./docs/tutorials/Demo_Batch_processing.ipynb)
 - [Demo of Soundscape Viewer - Investigating soundscape dynamics via visualization of long-duration recordings, blind source separation, and clustering](./docs/tutorials/Demo_of_soundscape_information_retrieval.ipynb)
     
 </details>
 
 ## Currently ongoing developments
 - [ ] Soundscape spatial analysis
-- [ ] Extraction of inter-pulse intervals
 - [ ] Plotly-based interactive plots
     
 ## Future works
@@ -140,7 +149,7 @@ sp=spectrogram_detection(model.separation[source_num-1], model.f, threshold=5.5,
 
 If you find this package useful in your research, we would appreciate citations to:
     
-- Sun, Y-J, Yen, S-C, & Lin, T-H (2022). soundscape_IR: A source separation toolbox for exploring acoustic diversity in soundscapes. Methods in Ecology and Evolution, 00, 1– 9. https://doi.org/10.1111/2041-210X.13960
+- Sun, Y-J, Yen, S-C, & Lin, T-H (2022). soundscape_IR: A source separation toolbox for exploring acoustic diversity in soundscapes. Methods in Ecology and Evolution, 00, 1–9. https://doi.org/10.1111/2041-210X.13960
 
 ## Bugs report and suggestions 
 If you encounter any bug or issue, please contact Dr. Tzu-Hao Lin via schonkopf@gmail.com. Suggestions are also appreciated!

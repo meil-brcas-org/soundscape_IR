@@ -1,8 +1,3 @@
-"""
-Soundscape information retrieval
-Author: Tzu-Hao Harry Lin (schonkopf@gmail.com)
-"""
-
 from .lts_maker import lts_maker
 from .soundscape_viewer import lts_viewer
 from .soundscape_viewer import data_organize

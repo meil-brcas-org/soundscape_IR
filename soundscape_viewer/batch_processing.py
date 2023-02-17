@@ -366,7 +366,7 @@ class batch_processing:
         self.start = start-1
         if not num_file:
             num_file=len(self.audioname)
-        run_list=range(self.start, self.start+num_file)
+        run_list=range(self.start, num_file)
 
         if self.run_separation:
             model_backup = copy.deepcopy(self.model)
@@ -443,7 +443,7 @@ class batch_processing:
                         lts.sf=audio.sf
                         lts.link=[]
                     lts.get_file_time(self.audioname[file])
-                    lts.compress_spectrogram(10**(model.separation[self.lts_source[0]-1][:,1:]/10), 
+                    lts.compress_spectrogram(10**(model.separation[self.lts_source-1][:,1:]/10), 
                                              model.separation[self.lts_source-1][:,0], self.lts_time_resolution, 
                                              linear_scale=True, interval_range=self.interval_range,
                                              energy_percentile=self.energy_percentile)

@@ -366,8 +366,8 @@ class batch_processing:
 
         self.start = start-1
         if not num_file:
-            num_file=len(self.audioname)
-        run_list=range(self.start, num_file)
+            num_file=len(self.audioname)-self.start
+        run_list=range(self.start, self.start+num_file)
 
         if self.run_separation:
             model_backup = copy.deepcopy(self.model)
